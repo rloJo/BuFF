@@ -1,5 +1,4 @@
-# VoxelFLEX
-
+# BuFF
 > NeRF를 활용한 변형체 볼륨 가시화
 
 
