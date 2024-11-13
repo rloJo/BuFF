@@ -93,3 +93,5 @@ VoxelFLEX는 4가지의 ngp(neural graphics primitives) 중 하나인 NeRF(Neura
    - 변형 계산은 고도의 병렬성을 갖는다는 것을 파악 후, GPU Cuda Core를 이용해 변형 계산을 병렬적으로 수행
    - 실생속도 413ms => 20ms로 대폭 향상.
 
+## 프로젝트 빌드하는 법
+> <a href = "https://github.com/rloJo/BuFF/tree/main/docs"> 빌드하는 법 </a>
