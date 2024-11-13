@@ -134,30 +134,30 @@ __global__ void generate_deformed_volume(
 	vec3* vol,
 	vec3* vol_buf,
 	DeformArea* vol_deform_area,
-	vec3 epicenter,
-	vec3 dir,
-	float force
+	vec3 epicenter, // 마우스를 클릭한 지점
+	vec3 dir, // 마우스를 드래그해서 나온 벡터
+	float force // 가중치 (사용가가 UI로 설정)
 ) {
-	const uint32_t i = threadIdx.x + blockIdx.x * blockDim.x;
+	const uint32_t i = threadIdx.x + blockIdx.x * blockDim.x; // Cuda core는 번호로 쓰레드를 구별한다.
 	if (i >= vol_size) return;
 
-	if (!vol_deform_area[i].active) return;
+	if (!vol_deform_area[i].active) return; // 변형 공간 판단
 
-	// Convert index to position to apply deformation
+	// 좌표를 인덱스로 변환
 	vec3 pos = vec3(0.0f);
 	pos.x = vol[i].x + 0.0001;
 	pos.y = vol[i].y + 0.0001;
 	pos.z = vol[i].z + 0.0001;
 
-	// Calculate the weight of deformation
+	// 거리에 따라 가중치가 달라진다. 변형 중심으로 부터 좌표가 멀어질 수록 가중치가 세져 변형이 약해짐.
 	int idx_x = vol_deform_area[i].x;
 	int idx_y = vol_deform_area[i].y;
 	int idx_z = vol_deform_area[i].z;
+	
+	int distance = abs(epicenter.x - idx_x) + abs(epicenter.y - idx_y) + abs(epicenter.z - idx_z); // 각 거리는 맨해튼 디스턴스로 계산
+	float weight = pow(force, distance); // 변형세기는 사용자가 입력한 가중치를 밑으로 하고 거리의 크기 지수 만큼 값을 갖는다.
 
-	int distance = abs(epicenter.x - idx_x) + abs(epicenter.y - idx_y) + abs(epicenter.z - idx_z);
-	float weight = pow(force, distance);
-
-	// Copy deform data to buffer
+	// 가상공간의 좌표를 수정한다. 역변환을 하기 때문에 벡터 * 가중치 만큼 원래 좌표에서 빼줘야 한다.
 	vol_buf[i].x = pos.x - dir.x * weight;
 	vol_buf[i].y = pos.y - dir.y * weight;
 	vol_buf[i].z = pos.z - dir.z * weight;
