@@ -154,7 +154,7 @@ __global__ void generate_deformed_volume(
 	int idx_y = vol_deform_area[i].y;
 	int idx_z = vol_deform_area[i].z;
 	
-	int distance = abs(epicenter.x - idx_x) + abs(epicenter.y - idx_y) + abs(epicenter.z - idx_z); // 각 거리는 맨해튼 디스턴스로 계산
+	int distance = abs(epicenter.x - idx_x) + abs(epicenter.y - idx_y) + abs(epicenter.z - idx_z); // 중심으로 부터의 거리를 구한다.
 	float weight = pow(force, distance); // 변형세기는 사용자가 입력한 가중치를 밑으로 하고 거리의 크기 지수 만큼 값을 갖는다.
 
 	// 가상공간의 좌표를 수정한다. 역변환을 하기 때문에 벡터 * 가중치 만큼 원래 좌표에서 빼줘야 한다.
