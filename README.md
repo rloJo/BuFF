@@ -88,10 +88,83 @@ VoxelFLEX는 4가지의 ngp(neural graphics primitives) 중 하나인 NeRF(Neura
 ---
 1. 가상공간과 실공간을 vec3의 3차원 배열로 생성시, 메모리 문제로 배열이 생성되지 않는 문제가 발생하였다.
 	- 3차원 배열을 1차원으로 만들어서 해결.
+	- 볼륨 데이터는 -1.5 ~ 2.5 의 각 길이 4 의 정육면체 형태로 나타난다.
+	- 따라서 각 1 복셀을 256 개로 나누려면 각 복셀마다 1/(256/4)의 차이를 갖는다.
+	- 일차원 배열로 나타내기 때문에 각 칸을 다 채우면 좌표 초기화에 유의해야한다.
+	``` c++
+   	// Volume Data 크기 정의 (클수록 화질 향상)
+	constexpr int VOLX = 256; // width
+	constexpr int VOLY = 256; // height
+	constexpr int VOLZ = 256; // depth
+
+	constexpr int VOL_SIZE = VOLX * VOLY * VOLZ;
+	constexpr int VOL_SIZE_DIGIT = 64; // (256/4)
+
+	// 볼륨 데이터 초기화 메소드
+ 	void generate_volume()
+	{
+	vec3 pos = { -1.5f, -1.5f, -1.5f };
+	float step = 1.0f / VOL_SIZE_DIGIT;
+
+	for (int z = 0; z < VOLZ; z++) {
+		for (int y = 0; y < VOLY; y++) {
+			for (int x = 0; x < VOLX; x++) {
+				int idx = z * VOLX * VOLY + y * VOLX + x;
+				h_vol[idx] = pos;
+				h_vol_deform_area[idx].x = x;
+				h_vol_deform_area[idx].y = y;
+				h_vol_deform_area[idx].z = z;
+				pos.x += step;
+			}
+			pos.x = -1.5f;
+			pos.y += step;
+		}
+		pos.y = -1.5f;
+		pos.z += step;
+	}
+   ```
+
 2. 가상공간의 복셀 하나씩 순회하며 변형 범위인지 판단하고 변형을 가하는 것은 변형 범위 및 가상공간의 크가 커질수록 실행시간이 최대 413ms 까지 증가하여 사용자 경험을 방해하였다.
    - C++로 작성된 변형 코드를 CUDA로 작성하여 실행속도 개선
    - 변형 계산은 고도의 병렬성을 갖는다는 것을 파악 후, GPU Cuda Core를 이용해 변형 계산을 병렬적으로 수행
    - 실생속도 413ms => 20ms로 대폭 향상.
+  ```c++
+__global__ void generate_deformed_volume(
+	const uint32_t vol_size,
+	vec3* vol,
+	vec3* vol_buf,
+	DeformArea* vol_deform_area,
+	vec3 epicenter,
+	vec3 dir,
+	float force
+) {
+	const uint32_t i = threadIdx.x + blockIdx.x * blockDim.x;
+	if (i >= vol_size) return;
+
+	if (!vol_deform_area[i].active) return;
+
+	// Convert index to position to apply deformation
+	vec3 pos = vec3(0.0f);
+	pos.x = vol[i].x + 0.0001;
+	pos.y = vol[i].y + 0.0001;
+	pos.z = vol[i].z + 0.0001;
+
+	// Calculate the weight of deformation
+	int idx_x = vol_deform_area[i].x;
+	int idx_y = vol_deform_area[i].y;
+	int idx_z = vol_deform_area[i].z;
+
+	int distance = abs(epicenter.x - idx_x) + abs(epicenter.y - idx_y) + abs(epicenter.z - idx_z);
+	float weight = pow(force, distance);
+
+	// Copy deform data to buffer
+	vol_buf[i].x = pos.x - dir.x * weight;
+	vol_buf[i].y = pos.y - dir.y * weight;
+	vol_buf[i].z = pos.z - dir.z * weight;
+}
+
+
+ ```
 
 ## 프로젝트 빌드하는 법
 > <a href = "https://github.com/rloJo/BuFF/tree/main/docs"> 빌드하는 법 </a>
