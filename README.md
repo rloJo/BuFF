@@ -15,15 +15,16 @@
          <td style="text-align: center"> Tool </td> 
          <td>  
              <img src="https://img.shields.io/badge/visualstudio-339AF0?style=for-the-badge&logo=visualstudio&logoColor=white" alt = "Visual Studio">
-             <img src="https://img.shields.io/badge/imgui-339AF0?style=for-the-badge&logo=imgui&logoColor=white" alt = "Visual Studio">
+			 <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white" alt = "Github">
+			 <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white" alt = "Git">
          </td>
     </tr>
     <tr>
         <td style="text-align: center"> Language </td>
         <td>   
     		  <img src="https://img.shields.io/badge/c-E34F26?style=for-the-badge&logo=c&logoColor=white"alt = "C"> 
-             <img src="https://img.shields.io/badge/c++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt ="C++">
-            <img src="https://img.shields.io/badge/cuda-3776AB?style=for-the-badge&logo=cuda&logoColor=white" alt = "cuda"> 
+             <img src="https://img.shields.io/badge/c++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt = "C++">
+            <img src="https://img.shields.io/badge/cuda-E34F26?style=for-the-badge&logo=cuda&logoColor=white" alt = "Cuda">
         </td>
     </tr>
 </table>
