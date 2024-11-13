@@ -145,9 +145,9 @@ __global__ void generate_deformed_volume(
 
 	// 좌표를 인덱스로 변환
 	vec3 pos = vec3(0.0f);
-	pos.x = vol[i].x + 0.0001;
-	pos.y = vol[i].y + 0.0001;
-	pos.z = vol[i].z + 0.0001;
+	pos.x = vol[i].x ;
+	pos.y = vol[i].y ;
+	pos.z = vol[i].z ;
 
 	// 거리에 따라 가중치가 달라진다. 변형 중심으로 부터 좌표가 멀어질 수록 가중치가 세져 변형이 약해짐.
 	int idx_x = vol_deform_area[i].x;
